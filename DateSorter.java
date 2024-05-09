@@ -1,10 +1,7 @@
 package sample;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Marking will be based upon producing a readable, well engineered solution rather than factors
@@ -27,6 +24,8 @@ import java.util.List;
  */
 public class DateSorter {
 
+    private static final String R_CHAR_IN_MONTH = "r";
+
     /**
      * The implementation of this method should sort dates.
      * The output should be in the following order:
@@ -44,16 +43,34 @@ public class DateSorter {
      * @return the collection of dates now sorted as per the spec
      */
     public Collection<LocalDate> sortDates(List<LocalDate> unsortedDates) {
-        // your solution here
-        List<LocalDate> listWithR = unsortedDates.stream()
-                .filter(x -> x.getMonth().toString().toLowerCase().contains("r"))
+
+        if (unsortedDates == null || unsortedDates.isEmpty()) {
+            throw new IllegalArgumentException("Input list of dates is null or empty.");
+        }
+        List<LocalDate> datesWithR = getSortedDateWithR(unsortedDates);
+        List<LocalDate> datesWithoutR = getSortedDatesWithoutR(unsortedDates);
+        List<LocalDate> result = new ArrayList<>(datesWithR);
+        result.addAll(datesWithoutR);
+        return result;
+    }
+
+    private List<LocalDate> getSortedDatesWithoutR(List<LocalDate> unsortedDates) {
+        return unsortedDates.stream()
+                .filter(Objects::nonNull)
+                .filter(x -> !isDateMonthContainsR(x))
+                .sorted(Comparator.reverseOrder())
+                .toList();
+    }
+
+    private List<LocalDate> getSortedDateWithR(List<LocalDate> unsortedDates) {
+        return unsortedDates.stream()
+                .filter(Objects::nonNull)
+                .filter(this::isDateMonthContainsR)
                 .sorted()
                 .toList();
-        List<LocalDate> listWithoutR = unsortedDates.stream()
-                .filter(x -> !x.getMonth().toString().toLowerCase().contains("r"))
-                .sorted(Comparator.reverseOrder()).toList();
-        List<LocalDate> result = new ArrayList<>(listWithR);
-        result.addAll(listWithoutR);
-        return result;
+    }
+
+    private boolean isDateMonthContainsR(LocalDate x) {
+        return x.getMonth().toString().toLowerCase().contains(R_CHAR_IN_MONTH);
     }
 }
